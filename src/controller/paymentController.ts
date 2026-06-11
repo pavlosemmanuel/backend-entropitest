@@ -1,5 +1,5 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
-import { recordPayment } from "../service/paymentService.js";
+import { paymentProcess } from "../service/paymentService.js";
 
 type PaymentParams = {
   id: string;
@@ -22,7 +22,7 @@ export const payOrder = async (
     const { id } = request.params;
     const { amount, customerId, idempotencyKey } = request.body;
 
-    const result = await recordPayment({
+    const result = await paymentProcess({
       orderId: id,
       amount,
       customerId,

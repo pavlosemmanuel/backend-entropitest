@@ -12,7 +12,7 @@ await fastify.register(cors, {
   origin: true,
 });
 
-const PORT = 5000;
+const PORT = 8080;
 
 await fastify.register(orderRoutes);
 await fastify.register(legdeRoutes);
