@@ -346,7 +346,7 @@ npm run dev
 The backend will run on:
 
 ```txt
-http://localhost:5000
+http://localhost:8080
 ```
 
 ## Prisma Studio
