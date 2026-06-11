@@ -1,6 +1,8 @@
+import type { string } from "zod";
 import { prisma } from "../lib/prisma.js";
 import { formatMoney, validateAmount } from "../utils/money.js";
 import { mockProssessPayment } from "./stripService.js";
+import { calculateFees } from "./feeService.js";
 
 type PaymentInput = {
   orderId: string;
@@ -10,7 +12,7 @@ type PaymentInput = {
   idempotencyKey: string;
 };
 
-export const paymentProcess = async (data: PaymentInput) => {
+export const recordPayment = async (data: PaymentInput) => {
   const { orderId, amount, customerId, paymentMethod, idempotencyKey } = data;
 
   if (!orderId || !amount || !customerId || !paymentMethod || !idempotencyKey) {
@@ -124,9 +126,18 @@ export const paymentProcess = async (data: PaymentInput) => {
     };
   });
 
+  const feeResult = await calculateFees({
+    orderId,
+    amount: moneyString,
+    idempotencyKey: `fee-${idempotencyKey}`,
+  });
+
   return {
     idempotent: false,
-    message: "Payment berhasil diproses",
-    data: result,
+    message: "Payment berhasil diproses dan fee berhasil dihitung",
+    data: {
+      payment: result,
+      fee: feeResult,
+    },
   };
 };
