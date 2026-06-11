@@ -1,5 +1,5 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
-import { paymentProcess } from "../service/paymentService.js";
+import { recordPayment } from "../service/paymentService.js";
 
 type PaymentParams = {
   id: string;
