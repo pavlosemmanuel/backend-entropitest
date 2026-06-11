@@ -1,0 +1,86 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  
+}
+
+model Order {
+ id              String   @id
+  customerId      String
+  amount          Decimal  @db.Decimal(18, 4)
+  paymentMethod   String
+  paymentStatus   String   @default("pending")
+  orderStatus     String   @default("created")
+  feeAmount       Decimal? @db.Decimal(18, 4)
+  payoutAmount    Decimal? @db.Decimal(18, 4)
+  paymentReceived Decimal? @db.Decimal(18, 4)
+  version         Int      @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  ledgerEntries   LedgerModels[]
+}
+
+
+
+
+model EventLogModels  {
+id              String    @id @default(uuid())
+aggregateId     String
+eventType       String
+payload         Json
+version         String
+timestamp       DateTime @default(now())
+idempotencyKey  String @unique
+
+
+@@unique([aggregateId, version])
+@@index([aggregateId, version])
+@@index([eventType])
+@@index([timestamp])
+}
+
+
+model LedgerModels {
+  id        String      @id @default(uuid())
+  orderId   String
+  account   String
+  debit     Decimal? @db.Decimal(18,4)
+  credit    Decimal? @db.Decimal(18,4)
+  timestamp DateTime @default(now())
+
+  order Order @relation(fields: [orderId], references: [id])
+
+  @@index([orderId])
+  @@index([account])
+  @@index([timestamp])
+}
+
+model Settlement {
+  id              String   @id @default(uuid())
+  settlementDate  DateTime
+  totalAmount      Decimal  @db.Decimal(18, 4)
+  totalFees        Decimal  @db.Decimal(18, 4)
+  totalPayout      Decimal  @db.Decimal(18, 4)
+  idempotencyKey   String   @unique
+  createdAt        DateTime @default(now())
+
+  @@unique([settlementDate])
+  @@index([settlementDate])
+}
+
+
+
+
+
+
+
